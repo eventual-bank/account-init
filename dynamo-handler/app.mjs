@@ -11,7 +11,7 @@ const client = new DynamoDBClient({});
 
 const dynamo = DynamoDBDocumentClient.from(client);
 
-const tableName = "http-crud-tutorial-items";
+const tableName = "account";
 
 export const handler = async (event, context) => {
   let body;
@@ -21,59 +21,24 @@ export const handler = async (event, context) => {
   };
 
   try {
-    switch (event.routeKey) {
-      case "DELETE /items/{id}":
-        await dynamo.send(
-          new DeleteCommand({
-            TableName: tableName,
-            Key: {
-              id: event.pathParameters.id,
-            },
-          })
-        );
-        body = `Deleted item ${event.pathParameters.id}`;
-        break;
-      case "GET /items/{id}":
-        body = await dynamo.send(
-          new GetCommand({
-            TableName: tableName,
-            Key: {
-              id: event.pathParameters.id,
-            },
-          })
-        );
-        body = body.Item;
-        break;
-      case "GET /items":
-        body = await dynamo.send(
-          new ScanCommand({ TableName: tableName })
-        );
-        body = body.Items;
-        break;
-      case "PUT /items":
-        let requestJSON = JSON.parse(event.body);
-        await dynamo.send(
-          new PutCommand({
-            TableName: tableName,
-            Item: {
-              id: requestJSON.id,
-              price: requestJSON.price,
-              name: requestJSON.name,
-            },
-          })
-        );
-        body = `Put item ${requestJSON.id}`;
-        break;
-      default:
-        throw new Error(`Unsupported route: "${event.routeKey}"`);
+    for (var i of [1,2,3,4,5,6,7,8,9,10]) {
+      await dynamo.send(
+        new PutCommand({
+          TableName: tableName,
+          Item: {
+            account_id: i,
+            balance: 100
+          },
+        })
+      );
     }
+      body = "Created 10 accounts";
   } catch (err) {
     statusCode = 400;
     body = err.message;
   } finally {
     body = JSON.stringify(body);
   }
-
   return {
     statusCode,
     body,
